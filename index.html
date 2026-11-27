@@ -9,511 +9,94 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #09090b;
-      --surface: #121215;
-      --surface-elevated: #18181c;
-      --code-bg: #0d0d10;
-      --border: #27272a;
-      --border-hover: #3f3f46;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --accent: #10b981;
-      --accent-hover: #059669;
-      --radius: 12px;
-      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --bg: #09090b; --surface: #121215; --surface-elevated: #18181c; --code-bg: #0d0d10;
+      --border: #27272a; --border-hover: #3f3f46; --text-main: #f4f4f5; --text-muted: #a1a1aa;
+      --accent: #10b981; --accent-hover: #059669; --danger: #ef4444; --warn: #f59e0b;
+      --radius: 12px; --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    a, button, input, textarea { outline: none; }
+    body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    body::before { content: ""; position: fixed; inset: 0; background-image: radial-gradient(#27272a 1px, transparent 1px); background-size: 24px 24px; opacity: 0.22; pointer-events: none; z-index: -1; }
+    .container { max-width: 820px; margin: 0 auto; padding: 36px 18px 80px; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; gap: 12px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--surface-elevated); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.9rem; }
+    .brand h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+    .db-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--text-muted); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .dot.local { background: var(--warn); }
 
-    a, button, input, textarea {
-      outline: none;
-    }
+    .editor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 36px; transition: border-color 0.25s ease; }
+    .editor-card.editing { border-color: var(--warn); }
+    .editor-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--surface-elevated); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .filename-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 220px; }
+    .file-preview-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); flex-shrink: 0; }
+    .filename-input { width: 100%; background: transparent; border: none; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; font-weight: 500; }
+    .filename-input::placeholder { color: #71717a; }
+    .top-badges { display: flex; align-items: center; gap: 8px; }
+    .ext-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap; }
+    .edit-badge { display: none; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4); color: var(--warn); white-space: nowrap; }
+    .editor-card.editing .edit-badge { display: inline-block; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      line-height: 1.55;
-      -webkit-font-smoothing: antialiased;
-    }
+    .code-area-wrap { position: relative; display: flex; background: var(--code-bg); min-height: 230px; max-height: 440px; }
+    .line-numbers { padding: 16px 12px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; line-height: 1.6; color: #52525b; user-select: none; border-right: 1px solid #1f1f23; background: #0b0b0e; overflow: hidden; min-width: 44px; }
+    textarea#code-input { flex: 1; width: 100%; min-height: 230px; padding: 16px; background: transparent; border: none; resize: vertical; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; tab-size: 2; white-space: pre; overflow-x: auto; }
+    textarea#code-input::placeholder { color: #52525b; }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(#27272a 1px, transparent 1px);
-      background-size: 24px 24px;
-      opacity: 0.22;
-      pointer-events: none;
-      z-index: -1;
-    }
+    .editor-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--surface-elevated); border-top: 1px solid var(--border); gap: 12px; }
+    .meta-stats { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--text-muted); }
+    .footer-actions { display: flex; gap: 8px; }
+    .btn-save, .btn-cancel { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: transform 0.15s var(--ease), background 0.2s ease; }
+    .btn-save { border: none; background: var(--text-main); color: var(--bg); }
+    .btn-save:hover { background: #e4e4e7; }
+    .btn-save:active, .btn-cancel:active { transform: scale(0.97); }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-cancel { display: none; border: 1px solid var(--border); background: transparent; color: var(--text-muted); }
+    .btn-cancel:hover { border-color: var(--border-hover); color: var(--text-main); }
+    .editor-card.editing .btn-cancel { display: inline-flex; }
 
-    .container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 36px 18px 80px;
-    }
+    .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .section-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
 
-    /* Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .files-list { display: flex; flex-direction: column; gap: 12px; }
+    .file-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.25s ease; }
+    .file-item:hover { border-color: var(--border-hover); }
+    .file-item.is-editing { border-color: var(--warn); }
+    .file-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; user-select: none; gap: 12px; }
+    .file-info { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .file-icon-box { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); flex-shrink: 0; }
+    .file-name-wrap { display: flex; flex-direction: column; min-width: 0; }
+    .file-name { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-time { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; color: var(--text-muted); }
+    .file-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .icon-btn { min-width: 32px; height: 32px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-elevated); color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; transition: all 0.2s ease; }
+    .icon-btn:active { transform: scale(0.94); }
+    .btn-edit:hover { color: var(--warn); border-color: var(--warn); }
+    .btn-delete:hover { color: var(--danger); border-color: var(--danger); }
+    .btn-delete.confirming { color: #fff; background: var(--danger); border-color: var(--danger); }
+    .file-item.open .toggle-btn { color: var(--text-main); border-color: var(--border-hover); }
+    .chevron-icon { transition: transform 0.25s var(--ease); }
+    .file-item.open .chevron-icon { transform: rotate(180deg); }
 
-    .brand-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: var(--surface-elevated);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
+    .code-drawer { display: none; border-top: 1px solid var(--border); background: var(--code-bg); }
+    .file-item.open .code-drawer { display: block; }
+    .code-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #101014; border-bottom: 1px solid #1e1e24; }
+    .lang-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); }
+    .btn-copy { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-elevated); color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.15s ease; }
+    .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-copy:active { transform: scale(0.96); }
+    pre.code-view { padding: 16px; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6; color: #e4e4e7; overflow-x: auto; max-height: 420px; tab-size: 2; }
 
-    .brand h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    .skeleton-item { height: 58px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); position: relative; overflow: hidden; }
+    .skeleton-item::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); animation: shimmer 1.3s infinite; }
+    .empty-state { text-align: center; padding: 36px 20px; border: 1px dashed var(--border); border-radius: var(--radius); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
 
-    .db-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 11px;
-      border-radius: 99px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-
-    .dot.local {
-      background: #f59e0b;
-    }
-
-    /* Form Editor Card */
-    .editor-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin-bottom: 36px;
-    }
-
-    .editor-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 16px;
-      background: var(--surface-elevated);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .filename-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 220px;
-    }
-
-    .file-preview-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .filename-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.88rem;
-      font-weight: 500;
-    }
-
-    .filename-input::placeholder {
-      color: #71717a;
-    }
-
-    .ext-hint {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    /* Professional Code Textarea with Line Numbers */
-    .code-area-wrap {
-      position: relative;
-      display: flex;
-      background: var(--code-bg);
-      min-height: 230px;
-      max-height: 440px;
-    }
-
-    .line-numbers {
-      padding: 16px 12px;
-      text-align: right;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.83rem;
-      line-height: 1.6;
-      color: #52525b;
-      user-select: none;
-      border-right: 1px solid #1f1f23;
-      background: #0b0b0e;
-      overflow: hidden;
-      min-width: 44px;
-    }
-
-    textarea#code-input {
-      flex: 1;
-      width: 100%;
-      min-height: 230px;
-      padding: 16px;
-      background: transparent;
-      border: none;
-      resize: vertical;
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      tab-size: 2;
-      white-space: pre;
-      overflow-x: auto;
-    }
-
-    textarea#code-input::placeholder {
-      color: #52525b;
-    }
-
-    .editor-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
-      background: var(--surface-elevated);
-      border-top: 1px solid var(--border);
-      gap: 12px;
-    }
-
-    .meta-stats {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    .btn-save {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: 9px;
-      border: none;
-      background: var(--text-main);
-      color: var(--bg);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s var(--ease), background 0.2s ease;
-    }
-
-    .btn-save:hover {
-      background: #e4e4e7;
-    }
-
-    .btn-save:active {
-      transform: scale(0.97);
-    }
-
-    .btn-save:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Section Header */
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-
-    /* Saved File Accordion Item */
-    .files-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .file-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: border-color 0.25s ease;
-    }
-
-    .file-item:hover {
-      border-color: var(--border-hover);
-    }
-
-    .file-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      cursor: pointer;
-      user-select: none;
-      gap: 12px;
-    }
-
-    .file-info {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      min-width: 0;
-    }
-
-    .file-icon-box {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .file-name-wrap {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .file-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .file-time {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.71rem;
-      color: var(--text-muted);
-    }
-
-    .file-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .toggle-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface-elevated);
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .file-item.open .toggle-btn {
-      color: var(--text-main);
-      border-color: var(--border-hover);
-    }
-
-    .chevron-icon {
-      transition: transform 0.25s var(--ease);
-    }
-
-    .file-item.open .chevron-icon {
-      transform: rotate(180deg);
-    }
-
-    /* Collapsible Code Drawer */
-    .code-drawer {
-      display: none;
-      border-top: 1px solid var(--border);
-      background: var(--code-bg);
-    }
-
-    .file-item.open .code-drawer {
-      display: block;
-    }
-
-    .code-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
-      background: #101014;
-      border-bottom: 1px solid #1e1e24;
-    }
-
-    .lang-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .btn-copy {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 11px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: var(--surface-elevated);
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .btn-copy:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .btn-copy:active {
-      transform: scale(0.96);
-    }
-
-    pre.code-view {
-      padding: 16px;
-      margin: 0;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: #e4e4e7;
-      overflow-x: auto;
-      max-height: 420px;
-      tab-size: 2;
-    }
-
-    /* Skeleton Loader */
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .skeleton-item {
-      height: 58px;
-      border-radius: var(--radius);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .skeleton-item::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-      animation: shimmer 1.3s infinite;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 36px 20px;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      background: var(--surface-elevated);
-      border: 1px solid var(--border-hover);
-      color: var(--text-main);
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-      transform: translateY(16px);
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s var(--ease);
-      z-index: 100;
-    }
-
-    #toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    #toast { position: fixed; bottom: 22px; right: 22px; background: var(--surface-elevated); border: 1px solid var(--border-hover); color: var(--text-main); padding: 10px 15px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; box-shadow: 0 12px 30px rgba(0,0,0,0.55); transform: translateY(16px); opacity: 0; pointer-events: none; transition: all 0.25s var(--ease); z-index: 100; }
+    #toast.show { transform: translateY(0); opacity: 1; }
   </style>
 </head>
 <body>
@@ -530,39 +113,33 @@
       </div>
     </header>
 
-    <!-- FORM INPUT -->
+    <!-- FORM INPUT / EDIT -->
     <form class="editor-card" id="save-form">
       <div class="editor-topbar">
         <div class="filename-group">
           <div class="file-preview-icon" id="live-file-icon"></div>
-          <input
-            type="text"
-            id="filename-input"
-            class="filename-input"
-            placeholder="Nama file (contoh: index.html atau kruzzy)"
-            autocomplete="off"
-            spellcheck="false"
-          />
+          <input type="text" id="filename-input" class="filename-input" placeholder="Nama file (contoh: index.html atau kruzzy)" autocomplete="off" spellcheck="false" />
         </div>
-        <span class="ext-hint" id="resolved-filename">untitled.txt</span>
+        <div class="top-badges">
+          <span class="edit-badge">MODE EDIT</span>
+          <span class="ext-hint" id="resolved-filename">untitled.txt</span>
+        </div>
       </div>
 
       <div class="code-area-wrap">
         <div class="line-numbers" id="line-numbers">1</div>
-        <textarea
-          id="code-input"
-          placeholder="Tempel atau tulis kode / catatan di sini... (Mendukung tombol Tab)"
-          spellcheck="false"
-          required
-        ></textarea>
+        <textarea id="code-input" placeholder="Tempel atau tulis kode / catatan di sini... (Mendukung tombol Tab)" spellcheck="false" required></textarea>
       </div>
 
       <div class="editor-footer">
         <span class="meta-stats" id="meta-stats">1 baris · 0 B</span>
-        <button type="submit" class="btn-save" id="submit-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Simpan
-        </button>
+        <div class="footer-actions">
+          <button type="button" class="btn-cancel" id="cancel-btn">Batal</button>
+          <button type="submit" class="btn-save" id="submit-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span id="submit-label">Simpan</span>
+          </button>
+        </div>
       </div>
     </form>
 
@@ -571,7 +148,6 @@
       <div class="list-header">
         <h2 class="section-title">File Tersimpan (<span id="file-count">0</span>)</h2>
       </div>
-
       <div class="files-list" id="files-list">
         <div class="skeleton-item"></div>
         <div class="skeleton-item"></div>
@@ -584,28 +160,22 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      query,
-      orderBy,
-      onSnapshot,
-      serverTimestamp
+      getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+      query, orderBy, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // =========================================================================
-    // 1. KONFIGURASI FIREBASE (Agar user lain bisa melihat file di web ini)
-    // Ganti objek di bawah dengan config dari Firebase Console -> Project Settings
+    // 1. KONFIGURASI FIREBASE
     // =========================================================================
     const firebaseConfig = {
-  apiKey: "AIzaSyCZUYIG0-TIZIa7EoyfL3ewr6dOMZbtvKo",
-  authDomain: "pesan-anonim-2c104.firebaseapp.com",
-  projectId: "pesan-anonim-2c104",
-  storageBucket: "pesan-anonim-2c104.firebasestorage.app",
-  messagingSenderId: "5943673763",
-  appId: "1:5943673763:web:17f5c13c56a60c34a4d016",
-  measurementId: "G-PJTV77S22C"
-};
+      apiKey: "AIzaSyCZUYIG0-TIZIa7EoyfL3ewr6dOMZbtvKo",
+      authDomain: "pesan-anonim-2c104.firebaseapp.com",
+      projectId: "pesan-anonim-2c104",
+      storageBucket: "pesan-anonim-2c104.firebasestorage.app",
+      messagingSenderId: "5943673763",
+      appId: "1:5943673763:web:17f5c13c56a60c34a4d016",
+      measurementId: "G-PJTV77S22C"
+    };
 
     const isFirebaseConfigured = firebaseConfig.apiKey !== "ISI_API_KEY_KAMU";
     let db = null;
@@ -618,21 +188,17 @@
     }
 
     // =========================================================================
-    // 2. RESOLVER NAMA FILE OTOMATIS (.txt jika tanpa ekstensi) & IKON FILE
+    // 2. NAMA FILE & IKON
     // =========================================================================
     function resolveFileName(raw) {
       let clean = raw.trim().replace(/[\/\\?%*:|"<>]/g, "");
       if (!clean) return "untitled.txt";
-      // Jika tidak mengandung titik ekstensi di akhir (misal: "kruzzy"), otomatis jadi "kruzzy.txt"
-      if (!/\.[a-zA-Z0-9]{1,10}$/.test(clean)) {
-        clean += ".txt";
-      }
+      if (!/\.[a-zA-Z0-9]{1,10}$/.test(clean)) clean += ".txt";
       return clean;
     }
 
     function getFileIconSVG(filename) {
       const ext = filename.split(".").pop().toLowerCase();
-
       if (ext === "html" || ext === "htm") {
         return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
       }
@@ -645,26 +211,31 @@
       if (["php", "py", "sh", "sql"].includes(ext)) {
         return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`;
       }
-      // Default .txt / dokumen
       return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`;
     }
 
     // =========================================================================
-    // 3. INTERAKSI EDITOR (LIVE ICON, LINE NUMBERS, TAB SUPPORT)
+    // 3. EDITOR
     // =========================================================================
+    const form = document.getElementById("save-form");
     const filenameInput = document.getElementById("filename-input");
     const resolvedBadge = document.getElementById("resolved-filename");
     const liveFileIcon = document.getElementById("live-file-icon");
     const codeInput = document.getElementById("code-input");
     const lineNumbers = document.getElementById("line-numbers");
     const metaStats = document.getElementById("meta-stats");
+    const submitBtn = document.getElementById("submit-btn");
+    const submitLabel = document.getElementById("submit-label");
+    const cancelBtn = document.getElementById("cancel-btn");
+
+    let items = [];
+    let editingId = null;
 
     function updateFilenamePreview() {
       const finalName = resolveFileName(filenameInput.value);
       resolvedBadge.textContent = finalName;
       liveFileIcon.innerHTML = getFileIconSVG(finalName);
     }
-
     filenameInput.addEventListener("input", updateFilenamePreview);
     updateFilenamePreview();
 
@@ -673,17 +244,12 @@
       const lines = val.split("\n").length;
       const bytes = new Blob([val]).size;
       const sizeStr = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
-
       metaStats.textContent = `${lines} baris · ${sizeStr}`;
       lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join("<br>");
     }
-
     codeInput.addEventListener("input", updateEditorStats);
-    codeInput.addEventListener("scroll", () => {
-      lineNumbers.scrollTop = codeInput.scrollTop;
-    });
+    codeInput.addEventListener("scroll", () => { lineNumbers.scrollTop = codeInput.scrollTop; });
 
-    // Dukungan tombol Tab di textarea
     codeInput.addEventListener("keydown", (e) => {
       if (e.key === "Tab") {
         e.preventDefault();
@@ -695,8 +261,36 @@
       }
     });
 
+    function resetEditor() {
+      editingId = null;
+      form.classList.remove("editing");
+      submitLabel.textContent = "Simpan";
+      filenameInput.value = "";
+      codeInput.value = "";
+      updateFilenamePreview();
+      updateEditorStats();
+    }
+
+    function startEdit(item) {
+      editingId = item.id;
+      form.classList.add("editing");
+      submitLabel.textContent = "Perbarui";
+      filenameInput.value = item.filename;
+      codeInput.value = item.content;
+      updateFilenamePreview();
+      updateEditorStats();
+      renderFiles(items);
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      codeInput.focus();
+    }
+
+    cancelBtn.addEventListener("click", () => {
+      resetEditor();
+      renderFiles(items);
+    });
+
     // =========================================================================
-    // 4. RENDER DAFTAR FILE (ACCORDION BUKA/TUTUP + SALIN)
+    // 4. RENDER DAFTAR FILE
     // =========================================================================
     const filesListEl = document.getElementById("files-list");
     const fileCountEl = document.getElementById("file-count");
@@ -711,24 +305,17 @@
     }
 
     function escapeHTML(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function formatTime(ts) {
       if (!ts) return "Baru saja";
       const date = ts.toDate ? ts.toDate() : new Date(ts);
-      return date.toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+      return date.toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
     }
 
-    function renderFiles(items) {
+    function renderFiles(list) {
+      items = list;
       fileCountEl.textContent = items.length;
 
       if (!items.length) {
@@ -736,11 +323,15 @@
         return;
       }
 
+      // Simpan file yang sedang terbuka agar tidak menutup sendiri saat re-render
+      const openIds = new Set([...filesListEl.querySelectorAll(".file-item.open")].map((el) => el.dataset.id));
+
       filesListEl.innerHTML = "";
       items.forEach((item) => {
         const ext = item.filename.split(".").pop().toUpperCase();
         const wrapper = document.createElement("div");
-        wrapper.className = "file-item";
+        wrapper.className = "file-item" + (openIds.has(item.id) ? " open" : "") + (item.id === editingId ? " is-editing" : "");
+        wrapper.dataset.id = item.id;
 
         wrapper.innerHTML = `
           <div class="file-bar">
@@ -748,11 +339,17 @@
               <div class="file-icon-box">${getFileIconSVG(item.filename)}</div>
               <div class="file-name-wrap">
                 <span class="file-name">${escapeHTML(item.filename)}</span>
-                <span class="file-time">${formatTime(item.createdAt)}</span>
+                <span class="file-time">${formatTime(item.createdAt)}${item.updatedAt ? " · diedit" : ""}</span>
               </div>
             </div>
             <div class="file-actions">
-              <button type="button" class="toggle-btn" title="Buka / Tutup Kode" aria-label="Toggle kode">
+              <button type="button" class="icon-btn btn-edit" title="Edit" aria-label="Edit file">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              </button>
+              <button type="button" class="icon-btn btn-delete" title="Hapus" aria-label="Hapus file">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+              <button type="button" class="icon-btn toggle-btn" title="Buka / Tutup Kode" aria-label="Toggle kode">
                 <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
             </div>
@@ -769,19 +366,31 @@
           </div>
         `;
 
-        // Klik bar / icon panah untuk buka-tutup kode
-        const bar = wrapper.querySelector(".file-bar");
-        bar.addEventListener("click", () => {
-          wrapper.classList.toggle("open");
+        wrapper.querySelector(".file-bar").addEventListener("click", () => wrapper.classList.toggle("open"));
+
+        wrapper.querySelector(".btn-copy").addEventListener("click", (e) => {
+          e.stopPropagation();
+          navigator.clipboard?.writeText(item.content).then(() => showToast(`Kode ${item.filename} disalin`));
         });
 
-        // Tombol Salin kode
-        const copyBtn = wrapper.querySelector(".btn-copy");
-        copyBtn.addEventListener("click", (e) => {
+        wrapper.querySelector(".btn-edit").addEventListener("click", (e) => {
           e.stopPropagation();
-          navigator.clipboard?.writeText(item.content).then(() => {
-            showToast(`Kode ${item.filename} disalin`);
-          });
+          startEdit(item);
+        });
+
+        // Hapus: klik pertama = konfirmasi, klik kedua (dalam 3 detik) = hapus
+        const delBtn = wrapper.querySelector(".btn-delete");
+        let delTimer;
+        delBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (!delBtn.classList.contains("confirming")) {
+            delBtn.classList.add("confirming");
+            delBtn.innerHTML = "Yakin?";
+            delTimer = setTimeout(() => renderFiles(items), 3000);
+            return;
+          }
+          clearTimeout(delTimer);
+          await deleteItem(item);
         });
 
         filesListEl.appendChild(wrapper);
@@ -789,41 +398,51 @@
     }
 
     // =========================================================================
-    // 5. PENYIMPANAN & SINKRONISASI DATABASE (CLOUD FIRESTORE / FALLBACK LOCAL)
+    // 5. PENYIMPANAN (FIRESTORE / LOCAL) — TAMBAH, UBAH, HAPUS
     // =========================================================================
     const LOCAL_KEY = "kruzzy_vault_files";
+    const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
     function loadLocalFiles() {
-      const saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || "null");
-      if (saved) return saved;
-      // Contoh awal agar langsung terlihat tampilannya
-      return [
-        {
-          filename: "index.html",
-          content: "<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Halo dari Kruzzy Vault!</h1>\n  </body>\n</html>",
-          createdAt: Date.now() - 120000
-        },
-        {
-          filename: "kruzzy.txt",
-          content: "Catatan server VPS:\npm2 status\npm2 logs bot-tele",
-          createdAt: Date.now() - 360000
+      let saved = JSON.parse(localStorage.getItem(LOCAL_KEY) || "null");
+      if (!saved) {
+        saved = [
+          { filename: "index.html", content: "<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Halo dari Kruzzy Vault!</h1>\n  </body>\n</html>", createdAt: Date.now() - 120000 },
+          { filename: "kruzzy.txt", content: "Catatan server VPS:\npm2 status\npm2 logs bot-tele", createdAt: Date.now() - 360000 }
+        ];
+      }
+      // Pastikan setiap item punya id
+      saved.forEach((f) => { if (!f.id) f.id = newId(); });
+      return saved;
+    }
+    const saveLocalFiles = (list) => localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+
+    async function deleteItem(item) {
+      try {
+        if (isFirebaseConfigured && db) {
+          await deleteDoc(doc(db, "files", item.id));
+        } else {
+          const next = loadLocalFiles().filter((f) => f.id !== item.id);
+          saveLocalFiles(next);
+          renderFiles(next);
         }
-      ];
+        if (editingId === item.id) resetEditor();
+        showToast(`${item.filename} dihapus`);
+      } catch (err) {
+        console.error(err);
+        showToast("Gagal menghapus file");
+        renderFiles(items);
+      }
     }
 
     if (isFirebaseConfigured && db) {
       const q = query(collection(db, "files"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
-        const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-        renderFiles(docs);
+        renderFiles(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
       });
     } else {
       setTimeout(() => renderFiles(loadLocalFiles()), 350);
     }
-
-    // Submit Form
-    const form = document.getElementById("save-form");
-    const submitBtn = document.getElementById("submit-btn");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -831,31 +450,31 @@
       if (!content.trim()) return;
 
       const filename = resolveFileName(filenameInput.value);
+      const wasEditing = editingId;
       submitBtn.disabled = true;
 
       try {
         if (isFirebaseConfigured && db) {
-          await addDoc(collection(db, "files"), {
-            filename,
-            content,
-            createdAt: serverTimestamp()
-          });
+          if (wasEditing) {
+            await updateDoc(doc(db, "files", wasEditing), { filename, content, updatedAt: serverTimestamp() });
+          } else {
+            await addDoc(collection(db, "files"), { filename, content, createdAt: serverTimestamp() });
+          }
         } else {
           const current = loadLocalFiles();
-          current.unshift({
-            filename,
-            content,
-            createdAt: Date.now()
-          });
-          localStorage.setItem(LOCAL_KEY, JSON.stringify(current));
+          if (wasEditing) {
+            const idx = current.findIndex((f) => f.id === wasEditing);
+            if (idx > -1) current[idx] = { ...current[idx], filename, content, updatedAt: Date.now() };
+          } else {
+            current.unshift({ id: newId(), filename, content, createdAt: Date.now() });
+          }
+          saveLocalFiles(current);
+          editingId = null;
           renderFiles(current);
         }
 
-        filenameInput.value = "";
-        codeInput.value = "";
-        updateFilenamePreview();
-        updateEditorStats();
-        showToast(`Tersimpan sebagai ${filename}`);
+        resetEditor();
+        showToast(wasEditing ? `${filename} diperbarui` : `Tersimpan sebagai ${filename}`);
       } catch (err) {
         console.error(err);
         showToast("Gagal menyimpan file");
